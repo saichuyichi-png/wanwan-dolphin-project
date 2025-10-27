@@ -477,6 +477,7 @@
             position: relative;
             overflow: hidden;
             flex-shrink: 0;
+            padding: 20px;
         }
 
         .water-bubble {
@@ -522,8 +523,8 @@
         }
 
         @keyframes swim {
-            0%, 100% { transform: translateY(0px) rotate(-2deg); }
-            50% { transform: translateY(-15px) rotate(2deg); }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
         }
 
         .dolphin-fin {
@@ -540,7 +541,7 @@
 
         .dolphin-tail {
             position: absolute;
-            right: -15px;
+            right: -10px;
             top: 20px;
             width: 30px;
             height: 40px;
@@ -1340,17 +1341,17 @@
         }
 
         @keyframes shake {
-            0% { transform: translateX(0); }
-            10% { transform: translateX(-5px) rotate(-2deg); }
-            20% { transform: translateX(5px) rotate(2deg); }
-            30% { transform: translateX(-5px) rotate(-1deg); }
-            40% { transform: translateX(5px) rotate(1deg); }
-            50% { transform: translateX(-3px) rotate(-1deg); }
-            60% { transform: translateX(3px) rotate(1deg); }
-            70% { transform: translateX(-2px); }
-            80% { transform: translateX(2px); }
-            90% { transform: translateX(-1px); }
-            100% { transform: translateX(0); }
+            0% { transform: translateY(0px); }
+            10% { transform: translateY(-8px); }
+            20% { transform: translateY(8px); }
+            30% { transform: translateY(-6px); }
+            40% { transform: translateY(6px); }
+            50% { transform: translateY(-4px); }
+            60% { transform: translateY(4px); }
+            70% { transform: translateY(-2px); }
+            80% { transform: translateY(2px); }
+            90% { transform: translateY(-1px); }
+            100% { transform: translateY(0px); }
         }
 
         @keyframes bounce {
@@ -2421,7 +2422,8 @@
                 }
             }, 2000);
         }
-// ======= 情绪色彩卡逻辑 =======
+
+        // ======= 情绪色彩卡逻辑 =======
         function initEmotionCard() {
             // 情绪数据
             const emotions = {
@@ -2477,53 +2479,38 @@
                 
                 const currentSwimAnimation = 'swim 4s ease-in-out infinite';
                 
-                // 获取当前变换状态，平滑过渡
-                const currentTransform = window.getComputedStyle(dolphin).transform;
+                // 动画时长配置
+                let emotionAnimationDuration = 0;
+                let emotionAnimationIterations = 1;
                 
-                // 临时停止游泳动画，保持当前位置
-                dolphin.style.animation = 'none';
-                dolphin.style.transform = currentTransform;
+                switch(animationType) {
+                    case 'bounce':
+                        emotionAnimationDuration = 0.5;
+                        emotionAnimationIterations = 3;
+                        break;
+                    case 'spin':
+                        emotionAnimationDuration = 1;
+                        emotionAnimationIterations = 1;
+                        break;
+                    case 'shake':
+                        emotionAnimationDuration = 0.8;
+                        emotionAnimationIterations = 3;
+                        break;
+                    case 'droop':
+                        emotionAnimationDuration = 2.5;
+                        emotionAnimationIterations = 2;
+                        break;
+                }
                 
-                // 稍微延迟后开始新动画，确保平滑过渡
+                const totalDuration = emotionAnimationDuration * emotionAnimationIterations * 1000;
+                
+                // 停止游泳动画，应用情绪动画
+                dolphin.style.animation = `${animationType} ${emotionAnimationDuration}s ease-in-out ${emotionAnimationIterations}`;
+                
+                // 动画结束后恢复游泳动画
                 setTimeout(() => {
-                    // 重置变换，让CSS动画接管
-                    dolphin.style.transform = '';
-                    
-                    switch(animationType) {
-                        case 'bounce':
-                            dolphin.style.animation = currentSwimAnimation + ', bounce 0.5s ease-in-out 3';
-                            break;
-                        case 'spin':
-                            dolphin.style.animation = currentSwimAnimation + ', spin 1s linear 1';
-                            break;
-                        case 'shake':
-                            dolphin.style.animation = currentSwimAnimation + ', shake 0.8s ease-in-out 3';
-                            break;
-                        case 'droop':
-                            dolphin.style.animation = currentSwimAnimation + ', droop 2.5s ease-out 2';
-                            break;
-                    }
-                }, 100);
-                
-                // 恢复默认游泳动画，使用更长的过渡时间确保平滑
-                setTimeout(() => {
-                    // 先获取当前状态
-                    const finalTransform = window.getComputedStyle(dolphin).transform;
-                    dolphin.style.animation = 'none';
-                    dolphin.style.transform = finalTransform;
-                    
-                    // 平滑过渡回默认动画
-                    setTimeout(() => {
-                        dolphin.style.transition = 'transform 0.5s ease-out';
-                        dolphin.style.transform = '';
-                        
-                        // 恢复游泳动画
-                        setTimeout(() => {
-                            dolphin.style.transition = '';
-                            dolphin.style.animation = currentSwimAnimation;
-                        }, 500);
-                    }, 50);
-                }, 3000);
+                    dolphin.style.animation = currentSwimAnimation;
+                }, totalDuration + 50);
             }
             
             // 创建魔法粒子
@@ -2572,161 +2559,6 @@
             }
         }
 
-        // ======= 环保分类游戏逻辑 =======
-        let envGameState = {
-            score: 0,
-            totalAttempts: 0,
-            correctAttempts: 0,
-            selectedTrash: null,
-            totalItems: 12,
-            completedItems: 0
-        };
-
-        function initEnvironmentGame() {
-            // 重置游戏状态
-            envGameState = {
-                score: 0,
-                totalAttempts: 0,
-                correctAttempts: 0,
-                selectedTrash: null,
-                totalItems: 12,
-                completedItems: 0
-            };
-            updateEnvScore();
-            updateEnvProgress();
-        }
-
-        function selectEnvTrash(element) {
-            const bins = document.querySelectorAll('#environmentPage .region-btn');
-            const gameTitle = document.getElementById('envGameTitle');
-            const guideText = document.getElementById('envGuideText');
-            
-            // 如果点击的是已经选中的垃圾，取消选择
-            if (envGameState.selectedTrash === element) {
-                element.classList.remove('selected');
-                envGameState.selectedTrash = null;
-                bins.forEach(bin => bin.classList.remove('highlight'));
-                gameTitle.textContent = '点击垃圾进行分类';
-                guideText.textContent = '你好！我是湾湾🐬 让我们一起学习垃圾分类，保护美丽的海洋吧！';
-                return;
-            }
-            
-            // 移除所有垃圾的选中状态
-            document.querySelectorAll('#environmentPage .food-item').forEach(t => t.classList.remove('selected'));
-            
-            // 选中当前垃圾
-            element.classList.add('selected');
-            envGameState.selectedTrash = element;
-            
-            // 高亮垃圾桶
-            bins.forEach(bin => bin.classList.add('highlight'));
-            
-            // 更新指导文本
-            const itemName = element.getAttribute('data-name');
-            gameTitle.textContent = `将${itemName}拖到正确的垃圾桶`;
-            guideText.textContent = `想想看，${itemName}应该放在哪个垃圾桶里呢？🤔`;
-        }
-
-        function dropEnvTrash(binType) {
-            const bins = document.querySelectorAll('#environmentPage .region-btn');
-            const gameTitle = document.getElementById('envGameTitle');
-            const guideText = document.getElementById('envGuideText');
-            
-            if (!envGameState.selectedTrash) {
-                showFeedback('请先选择一个垃圾物品哦！🤔', 'incorrect');
-                return;
-            }
-
-            const selectedType = envGameState.selectedTrash.getAttribute('data-type');
-            const itemName = envGameState.selectedTrash.getAttribute('data-name');
-
-            envGameState.totalAttempts++;
-
-            if (selectedType === binType) {
-                // 正确分类
-                envGameState.score += 10;
-                envGameState.correctAttempts++;
-                envGameState.completedItems++;
-                
-                updateEnvScore();
-                showFeedback(`太棒了！${itemName}分类正确！湾湾为你点赞！🐬✨`, 'correct');
-                
-                // 消失动画
-                envGameState.selectedTrash.style.animation = 'disappear 0.8s ease-in-out forwards';
-                
-                setTimeout(() => {
-                    envGameState.selectedTrash.remove();
-                    checkEnvGameComplete();
-                }, 800);
-                
-                // 更新指导文本
-                guideText.textContent = `太棒了！${itemName}分类正确！🎉`;
-                
-            } else {
-                // 错误分类
-                showFeedback(`${itemName}不应该放在这里哦，再想想看！🤨`, 'incorrect');
-                envGameState.selectedTrash.style.animation = 'shake 0.6s ease-in-out';
-                
-                setTimeout(() => {
-                    envGameState.selectedTrash.style.animation = '';
-                }, 600);
-                
-                // 更新指导文本
-                guideText.textContent = `${itemName}不应该放在这里哦，再想想看！🤨`;
-                updateEnvScore();
-            }
-
-            // 重置状态
-            envGameState.selectedTrash.classList.remove('selected');
-            envGameState.selectedTrash = null;
-            bins.forEach(b => b.classList.remove('highlight'));
-            gameTitle.textContent = '点击垃圾进行分类';
-            
-            // 延迟恢复指导文本到默认状态
-            setTimeout(() => {
-                if (!envGameState.selectedTrash) {
-                    guideText.textContent = '选择一个垃圾物品开始分类吧！🌊';
-                }
-            }, 2000);
-            
-            updateEnvProgress();
-        }
-
-        function checkEnvGameComplete() {
-            if (envGameState.completedItems >= envGameState.totalItems) {
-                setTimeout(() => {
-                    const accuracy = Math.round((envGameState.correctAttempts / envGameState.totalAttempts) * 100);
-                    const guideText = document.getElementById('envGuideText');
-                    const gameTitle = document.getElementById('envGameTitle');
-                    
-                    guideText.textContent = `🎉 恭喜完成！得分：${envGameState.score}，正确率：${accuracy}%！湾湾为你骄傲！🐬`;
-                    gameTitle.textContent = '🏆 游戏完成！';
-                    
-                    createCelebration();
-                }, 1000);
-            }
-        }
-
-        function updateEnvScore() {
-            const scoreElement = document.getElementById('envScore');
-            const accuracyElement = document.getElementById('envAccuracy');
-            
-            if (scoreElement) scoreElement.textContent = envGameState.score;
-            if (accuracyElement) {
-                const accuracy = envGameState.totalAttempts > 0 
-                    ? Math.round((envGameState.correctAttempts / envGameState.totalAttempts) * 100) 
-                    : 0;
-                accuracyElement.textContent = accuracy + '%';
-            }
-        }
-
-        function updateEnvProgress() {
-            const progressBar = document.getElementById('envProgressBar');
-            if (progressBar) {
-                const progress = (envGameState.completedItems / envGameState.totalItems) * 100;
-                progressBar.style.width = progress + '%';
-            }
-        }
         // ======= 环保分类游戏逻辑 =======
         let envGameState = {
             score: 0,
