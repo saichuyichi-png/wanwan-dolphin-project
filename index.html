@@ -2208,13 +2208,22 @@
 
         // 页面管理
         function showPage(pageId) {
+            console.log('showPage 被调用，参数:', pageId);
+            
             // 隐藏所有页面
             document.querySelectorAll('.page').forEach(page => {
                 page.classList.remove('active');
             });
             
             // 显示指定页面
-            document.getElementById(pageId).classList.add('active');
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                console.log('成功显示页面:', pageId);
+            } else {
+                console.error('找不到页面:', pageId);
+                alert('错误：找不到页面 ' + pageId);
+            }
         }
 
         // 返回主页
@@ -2285,27 +2294,40 @@
 
         // 卡片点击事件
         function openCard(cardType) {
+            console.log('openCard 被调用，参数:', cardType);
+            alert('点击了卡片: ' + cardType);
+            
             switch(cardType) {
                 case 'emotion':
+                    console.log('准备跳转到情绪色彩卡');
                     showLoadingAndJump('emotion');
                     break;
                 case 'environment':
+                    console.log('准备跳转到环保分类卡');
                     showLoadingAndJump('environment');
                     break;
                 case 'food':
+                    console.log('准备跳转到湾区美食卡');
                     showLoadingAndJump('food');
                     break;
                 case 'friends':
+                    console.log('准备跳转到海底朋友卡');
                     showLoadingAndJump('friends');
                     break;
                 case 'harmony':
+                    console.log('准备跳转到共生互动卡');
                     showLoadingAndJump('harmony');
                     break;
+                default:
+                    console.log('未知的卡片类型:', cardType);
+                    alert('未知的卡片类型: ' + cardType);
             }
         }
 
         // 显示加载效果并跳转
         function showLoadingAndJump(cardType) {
+            console.log('showLoadingAndJump 被调用，参数:', cardType);
+            
             // 创建加载遮罩
             const loadingOverlay = document.createElement('div');
             loadingOverlay.style.cssText = `

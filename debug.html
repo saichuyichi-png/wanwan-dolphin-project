@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点击事件调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 30%, #00b894 70%, #00cec9 100%);
+            min-height: 100vh;
+        }
+        .test-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            margin: 20px;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .test-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border-color: #74b9ff;
+        }
+        .debug-info {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: white; text-align: center;">点击事件调试页面</h1>
+    
+    <div class="test-card" onclick="testClick('emotion')">
+        <h3>情绪色彩卡测试</h3>
+        <p>点击这里测试 emotion 卡片</p>
+    </div>
+    
+    <div class="test-card" onclick="testClick('environment')">
+        <h3>环保分类卡测试</h3>
+        <p>点击这里测试 environment 卡片</p>
+    </div>
+    
+    <div class="test-card" onclick="testClick('food')">
+        <h3>湾区美食卡测试</h3>
+        <p>点击这里测试 food 卡片</p>
+    </div>
+    
+    <div class="debug-info" id="debugInfo">
+        <h3>调试信息：</h3>
+        <div id="debugLog">等待点击事件...</div>
+    </div>
+    
+    <div style="text-align: center; margin: 20px;">
+        <button onclick="testOriginalPage()" style="background: #00b894; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; font-size: 16px;">
+            测试原始页面
+        </button>
+    </div>
+    
+    <script>
+        function testClick(cardType) {
+            const debugLog = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            debugLog.innerHTML += `<br>[${timestamp}] 点击了卡片: ${cardType}`;
+            debugLog.innerHTML += `<br>[${timestamp}] 正在调用 openCard('${cardType}')...`;
+            
+            // 尝试调用原始页面的函数
+            try {
+                if (typeof openCard === 'function') {
+                    openCard(cardType);
+                    debugLog.innerHTML += `<br>[${timestamp}] ✅ openCard 函数调用成功`;
+                } else {
+                    debugLog.innerHTML += `<br>[${timestamp}] ❌ openCard 函数不存在`;
+                    alert('点击成功！卡片类型: ' + cardType);
+                }
+            } catch (error) {
+                debugLog.innerHTML += `<br>[${timestamp}] ❌ 错误: ${error.message}`;
+            }
+            
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+        
+        function testOriginalPage() {
+            window.open('./index.html', '_blank');
+        }
+        
+        // 页面加载完成后的测试
+        window.addEventListener('load', function() {
+            const debugLog = document.getElementById('debugLog');
+            debugLog.innerHTML = '[页面加载完成] 调试页面已准备就绪<br>';
+            debugLog.innerHTML += '[提示] 请点击上方的测试卡片来验证点击事件<br>';
+        });
+    </script>
+</body>
+</html>
