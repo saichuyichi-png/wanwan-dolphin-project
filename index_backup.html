@@ -2754,6 +2754,19 @@
             completedItems: 0
         };
 
+        function initEnvironmentGame() {
+            // 重置游戏状态
+            envGameState = {
+                score: 0,
+                totalAttempts: 0,
+                correctAttempts: 0,
+                selectedTrash: null,
+                totalItems: 12,
+                completedItems: 0
+            };
+            updateEnvScore();
+            updateEnvProgress();
+        }
 
         function selectEnvTrash(element) {
             const bins = document.querySelectorAll('#environmentPage .region-btn');
